@@ -8,7 +8,7 @@ interface iAppProps {
   images: any;
 }
 
-export default function imageGallery({ images }: iAppProps) {
+export default function ImageGallery({ images }: iAppProps) {
   // use State
   const [bigImage, setBigImage] = useState(images[0]);
 

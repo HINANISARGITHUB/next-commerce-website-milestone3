@@ -4,7 +4,6 @@ import "./globals.css";
 import Navbar from "./components/navbar";
 import CartProvider from "./components/providers";
 import ShoppingCartModal from "./components/shoppingCartModal";
-import { Footprints } from "lucide-react";
 import Footer from "./components/footer";
 
 

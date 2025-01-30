@@ -9,6 +9,8 @@ import {
 import { useShoppingCart } from "use-shopping-cart";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { loadStripe } from "@stripe/stripe-js";
+
 
 export default function ShoppingCartModal() {
   // hookProvider use shoppingcart package
@@ -19,23 +21,56 @@ export default function ShoppingCartModal() {
     cartDetails,
     removeItem,
     totalPrice,
-    redirectToCheckout,
+    
   } = useShoppingCart();
 
-  // Handle checkout
+  const stripePromise = loadStripe("pk_test_51QhOZBF3DJt7SJYiq2Boq3LitktQUotOllp2p4PXVjAwtPsh3aSxkX2S1VQoQr0kk37xvTRH09iNfAEBiPwaeIYf00dw4u3HfB");
+
   async function handleCheckoutClick(event: any) {
     event.preventDefault();
-
+  
+    const stripe = await stripePromise; // Load Stripe instance
+  
+    if (!stripe) {
+      console.error("Stripe failed to load");
+      return;
+    }
+  
     try {
-      const result = await redirectToCheckout();
-
+      const result = await stripe.redirectToCheckout({
+        lineItems: [
+          {
+            price: "price_1QhP8FF3DJt7SJYiX7QHvQ4O", // Product 1 Price ID
+            quantity: 1,
+          },
+          {
+            price: "price_1QhPBVF3DJt7SJYi2chOXJPE", // Product 2 Price ID
+            quantity: 1,
+          },
+          {
+            price: "price_1QhOzRF3DJt7SJYiGkHcG4be", // Product 3 Price ID
+            quantity: 1,
+          },
+          {
+            price: "price_1QhQjuF3DJt7SJYifQew8dAt", // Product 4 Price ID
+            quantity: 1,
+          },
+        ],
+        mode: "payment",
+        successUrl: `${window.location.origin}/success`,
+        cancelUrl: `${window.location.origin}/cancel`,
+      });
+  
       if (result?.error) {
         console.log("Error during checkout:", result.error);
       }
     } catch (error) {
-      console.log(error);
+      console.log("Checkout Error:", error);
     }
   }
+  
+  
+    
 
   return (
     <Sheet open={shouldDisplayCart} onOpenChange={() => handleCartClick()}>
@@ -48,7 +83,7 @@ export default function ShoppingCartModal() {
           <div className="mt-8 flex-1 overflow-y-auto">
             <ul className="-my-6 divide-y divide-gray-200">
               {cartCount === 0 ? (
-                <h1 className="py-6">You don't have any items</h1>
+                <h1 className="py-6">You don&apos;t have any items</h1>
               ) : (
                 <>
                   {Object.values(cartDetails ?? {}).map((entry) => (
@@ -101,7 +136,6 @@ export default function ShoppingCartModal() {
             <div className="flex justify-between text-base font-medium text-gray-900">
               <p>Subtotal</p>
               <p>${cartCount === 0 ? 0 : (totalPrice || 0).toFixed(2)}</p>
-
             </div>
 
             <p className="mt-0.5 text-sm text-gray-500">
